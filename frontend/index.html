@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic-Tac-Toe — Player vs Computer</title>
+    <meta name="description" content="A clean, responsive Tic-Tac-Toe web game powered by a stateless Spring Boot backend.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="game-header">
+            <h1>Tic-Tac-Toe</h1>
+            <p class="subtitle">Player vs Computer</p>
+        </header>
+
+        <section class="controls-panel" aria-label="Game Controls">
+            <div class="difficulty-container">
+                <span class="control-label" id="difficulty-label">Difficulty:</span>
+                <div class="segmented-control" role="radiogroup" aria-labelledby="difficulty-label">
+                    <button type="button" 
+                            class="segment-btn active" 
+                            id="diff-easy" 
+                            role="radio" 
+                            aria-checked="true" 
+                            data-difficulty="EASY">
+                        Easy
+                    </button>
+                    <button type="button" 
+                            class="segment-btn" 
+                            id="diff-medium" 
+                            role="radio" 
+                            aria-checked="false" 
+                            data-difficulty="MEDIUM">
+                        Medium
+                    </button>
+                </div>
+            </div>
+
+            <div class="scoreboard" aria-label="Current Session Scoreboard">
+                <div class="score-card player-card">
+                    <span class="score-label">Player (X)</span>
+                    <span class="score-value" id="score-player">0</span>
+                </div>
+                <div class="score-card computer-card">
+                    <span class="score-label">Computer (O)</span>
+                    <span class="score-value" id="score-computer">0</span>
+                </div>
+                <div class="score-card draw-card">
+                    <span class="score-label">Draws</span>
+                    <span class="score-value" id="score-draws">0</span>
+                </div>
+            </div>
+        </section>
+
+        <main class="game-area">
+            <div class="status-container">
+                <div class="status-banner" id="game-status" aria-live="polite">
+                    Your turn! Select an empty cell.
+                </div>
+            </div>
+
+            <div class="board-container">
+                <div class="board" id="board" role="grid" aria-label="Tic-Tac-Toe Board">
+                    <button type="button" class="cell" data-position="1" data-index="0" aria-label="Position 1, empty"></button>
+                    <button type="button" class="cell" data-position="2" data-index="1" aria-label="Position 2, empty"></button>
+                    <button type="button" class="cell" data-position="3" data-index="2" aria-label="Position 3, empty"></button>
+                    <button type="button" class="cell" data-position="4" data-index="3" aria-label="Position 4, empty"></button>
+                    <button type="button" class="cell" data-position="5" data-index="4" aria-label="Position 5, empty"></button>
+                    <button type="button" class="cell" data-position="6" data-index="5" aria-label="Position 6, empty"></button>
+                    <button type="button" class="cell" data-position="7" data-index="6" aria-label="Position 7, empty"></button>
+                    <button type="button" class="cell" data-position="8" data-index="7" aria-label="Position 8, empty"></button>
+                    <button type="button" class="cell" data-position="9" data-index="8" aria-label="Position 9, empty"></button>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="button" id="btn-restart" class="btn btn-primary" aria-label="Start a new game">
+                    New Game
+                </button>
+            </div>
+        </main>
+
+        <footer class="game-footer">
+            <p>Stateless Spring Boot Backend &bull; Vanilla Frontend</p>
+        </footer>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
