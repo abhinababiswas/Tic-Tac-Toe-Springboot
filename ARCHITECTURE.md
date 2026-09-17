@@ -359,5 +359,28 @@ Phase 4 adds real-time Player vs Player online multiplayer with server-authorita
 - **Disconnect Handling**: If a player disconnects during an active game, the match is marked `ABANDONED` and the opponent is notified without unfair score distortion.
 - **Detailed Documentation**: See [docs/MVP2_PHASE4.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE4.md).
 
+---
 
+## 16. Modern Responsive Web Architecture (Phase 5: Website Redesign)
 
+Phase 5 transforms the front-end user experience into a modern gaming website:
+
+### 16.1 Single-Page Architecture & View Routing
+- **Hash-Based Router**: Seamless view switching without browser reloads across `#home`, `#play`, `#multiplayer`, `#leaderboard`, and `#history`.
+- **Modular Frontend**:
+  - `api.js`: REST client module isolating `fetch()` calls.
+  - `socket.js`: WebSocket + STOMP connection manager.
+  - `app.js`: State manager, view router, and DOM event coordinator.
+- **Visual Design System**: Dark gaming theme (`#0a0e17`), electric cyan/rose accents, glassmorphic filters (`backdrop-filter: blur(14px)`), Google Font *Outfit*, and responsive layouts supporting 320px to 1440px+ viewports.
+- **Accessibility**: Full keyboard tab-navigation on game board cells, visible focus rings, ARIA live regions (`aria-live="polite"`), and `@media (prefers-reduced-motion: reduce)` support.
+- **Detailed Documentation**: See [docs/MVP2_PHASE5.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE5.md).
+
+---
+
+## 17. Release Readiness & Full Integration (Phase 6)
+
+Phase 6 certifies the complete MVP2 release:
+- **Comprehensive Quality Assurance**: 147 automated unit, service, concurrency, and integration tests with a 100% pass rate.
+- **Production Packaging**: Verified `mvn clean package` producing executable Spring Boot JAR (`tictactoe-backend-0.0.1-SNAPSHOT.jar`).
+- **Security Posture**: Server-authoritative move validation, zero committed secrets, parameterized SQL/JPA queries, and origin-isolated CORS restrictions.
+- **Final Release Report**: See [docs/MVP2_RELEASE_REPORT.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_RELEASE_REPORT.md) and [docs/MVP2_FINAL.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_FINAL.md).

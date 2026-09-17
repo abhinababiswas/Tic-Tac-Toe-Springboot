@@ -1,218 +1,252 @@
-# Tic-Tac-Toe MVP 1 — REST API Specification
+# Tic-Tac-Toe MVP2 — Complete API & Protocol Specification
 
 ## 1. Overview
 
-The Tic-Tac-Toe backend provides a clean, stateless REST API. The client maintains the session state and submits the current 9-cell board along with the player's move. The backend validates the move, applies game rules, executes the computer's move, and returns the authoritative resulting game state.
+The Tic-Tac-Toe MVP2 platform exposes two complementary communication channels:
+1. **Stateless REST API** (Port 8080): Handles Player vs Computer moves, user profile management, global leaderboards, and personal game history.
+2. **Real-Time WebSocket & STOMP Broker** (`/ws`): Handles real-time online matchmaking, two-player sessions, and live move synchronization.
 
 **Base URL**: `http://localhost:8080`  
 **Content-Type**: `application/json`
 
 ---
 
-## 2. Primary Endpoint: Make Move
+## 2. REST API Endpoints
 
-### `POST /api/game/move`
+### 2.1 Make Computer Move
+`POST /api/game/move`
 
-Processes a player's move and returns the resulting board and game status.
+Processes a human move against the server-side computer AI and returns the resulting board, status, and computer move.
 
 #### Request Headers
 | Header | Value | Description |
 | :--- | :--- | :--- |
-| `Content-Type` | `application/json` | Required JSON request body |
+| `Content-Type` | `application/json` | Required JSON payload |
 
-#### Request Body Fields
+#### Request Body
 | Field | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | `board` | `List<String>` | Yes | Array of 9 strings representing cells 1–9. Valid values: `"X"`, `"O"`, `""`. |
-| `move` (or `position`) | `Integer` | Yes | 1-based board position (`1` to `9`) where the player wants to place `"X"`. |
-| `difficulty` | `String` | Optional (default `MEDIUM`) | AI difficulty level: `"EASY"` or `"MEDIUM"`. |
+| `move` (or `position`) | `Integer` | Yes | 1-based board position (`1` to `9`) where player places `"X"`. |
+| `difficulty` | `String` | Optional (default `"EASY"`) | AI difficulty: `"EASY"`, `"MEDIUM"`, or `"HARD"`. |
+| `userId` | `Long` | Optional | Persistent user ID. If provided, completed matches are saved to history. |
+| `startedAt` | `String` (ISO 8601) | Optional | Client timestamp when the match began for duration tracking. |
 
-#### Request Example
+#### Example Request
 ```json
 {
-  "board": [
-    "", "", "",
-    "", "", "",
-    "", "", ""
-  ],
+  "board": ["", "", "", "", "", "", "", "", ""],
   "move": 5,
-  "difficulty": "MEDIUM"
+  "difficulty": "HARD",
+  "userId": 42,
+  "startedAt": "2026-09-18T04:00:00.000Z"
 }
 ```
 
----
-
-## 3. Response Contracts
-
-### Successful Turn — `IN_PROGRESS` (HTTP 200 OK)
-Returned when both the player and computer have placed their marks, and the game is still underway.
-
+#### Example Response (HTTP 200 OK)
 ```json
 {
-  "board": [
-    "", "", "",
-    "", "X", "",
-    "", "", "O"
-  ],
+  "board": ["", "", "", "", "X", "", "", "", "O"],
   "status": "IN_PROGRESS",
   "message": "Computer played position 9. Your turn!",
   "nextTurn": "PLAYER",
-  "computerMove": 9
-}
-```
-
-### Player Victory — `PLAYER_WON` (HTTP 200 OK)
-Returned when the player's move completes 3-in-a-row. The computer does not play.
-
-```json
-{
-  "board": [
-    "X", "X", "X",
-    "O", "O", "",
-    "", "", ""
-  ],
-  "status": "PLAYER_WON",
-  "message": "Player wins!",
-  "nextTurn": null,
-  "computerMove": null
-}
-```
-
-### Computer Victory — `COMPUTER_WON` (HTTP 200 OK)
-Returned when the computer's subsequent move completes 3-in-a-row.
-
-```json
-{
-  "board": [
-    "O", "O", "O",
-    "X", "X", "",
-    "", "", ""
-  ],
-  "status": "COMPUTER_WON",
-  "message": "Computer played position 3 and won!",
-  "nextTurn": null,
-  "computerMove": 3
-}
-```
-
-### Draw — `DRAW` (HTTP 200 OK)
-Returned when all 9 cells are occupied and neither party has won.
-
-```json
-{
-  "board": [
-    "X", "O", "X",
-    "X", "O", "O",
-    "O", "X", "X"
-  ],
-  "status": "DRAW",
-  "message": "Game ended in a draw.",
-  "nextTurn": null,
-  "computerMove": null
+  "computerMove": 9,
+  "winningLine": null
 }
 ```
 
 ---
 
-## 4. Error Responses (HTTP 400 Bad Request)
+### 2.2 Create User Profile
+`POST /api/users`
 
-Error payloads use a consistent JSON format:
+Registers a new user profile with a unique username.
+
+#### Request Body
 ```json
 {
-  "error": "<ERROR_CODE>",
-  "message": "<DESCRIPTIVE_MESSAGE>"
+  "username": "Neo"
 }
 ```
 
-### Error Scenarios
-
-#### 1. Target Position Occupied
+#### Response (HTTP 201 Created)
 ```json
 {
-  "error": "INVALID_MOVE",
-  "message": "Position 1 is already occupied by 'X'."
+  "id": 1,
+  "username": "Neo",
+  "createdAt": "2026-09-18T04:00:00.000Z"
 }
 ```
 
-#### 2. Position Out of Range
+#### Conflict (HTTP 409 Conflict)
+Returned if the username is already taken.
 ```json
 {
-  "error": "INVALID_MOVE",
-  "message": "Move position 10 is invalid. Must be between 1 and 9."
-}
-```
-
-#### 3. Attempting Move on Finished Game
-```json
-{
-  "error": "INVALID_MOVE",
-  "message": "Cannot make a move: Player has already won."
-}
-```
-
-#### 4. Invalid Board Size
-```json
-{
-  "error": "INVALID_BOARD",
-  "message": "Board must contain exactly 9 cells."
-}
-```
-
-#### 5. Inconsistent Turn Count
-```json
-{
-  "error": "INVALID_BOARD",
-  "message": "Invalid board state: expected equal count of 'X' and 'O' before player's turn, but found 2 'X' and 0 'O'."
-}
-```
-
-#### 6. Invalid Board Symbol
-```json
-{
-  "error": "INVALID_BOARD",
-  "message": "Invalid symbol 'Z' at position 3. Only 'X', 'O', or empty are permitted."
-}
-```
-
-#### 7. Malformed JSON / Invalid Enum
-```json
-{
-  "error": "BAD_REQUEST",
-  "message": "Malformed JSON request body or invalid enum value."
+  "error": "USERNAME_ALREADY_EXISTS",
+  "message": "Username 'Neo' is already taken."
 }
 ```
 
 ---
 
-## 5. Difficulty Levels
+### 2.3 Lookup User by Username
+`GET /api/users/by-username/{username}`
 
-| Difficulty | Decision Strategy |
-| :--- | :--- |
-| `EASY` | Selects uniformly at random among all available empty cells. No tactical heuristics. |
-| `MEDIUM` | Rule-based priority tree:<br>1. **Win immediately**: If computer can win in 1 move, take it.<br>2. **Block player**: Else if player threatens an immediate win, take that cell.<br>3. **Random fallback**: Otherwise, select an available empty cell at random. |
-
----
-
-## 6. Optional Utility Endpoint
-
-### `GET /api/game/health`
-Returns backend service availability.
+Retrieves an existing player profile by display username.
 
 #### Response (HTTP 200 OK)
 ```json
 {
-  "status": "UP",
-  "service": "tictactoe-backend"
+  "id": 1,
+  "username": "Neo",
+  "createdAt": "2026-09-18T04:00:00.000Z"
+}
+```
+
+#### Not Found (HTTP 404 Not Found)
+```json
+{
+  "error": "USER_NOT_FOUND",
+  "message": "User not found with username: Neo"
 }
 ```
 
 ---
 
-## 7. CORS Configuration
+### 2.4 User Match History
+`GET /api/users/{userId}/history?page=0&size=10`
 
-The endpoint is pre-configured with `@CrossOrigin` to support common local frontend development origins:
-- `http://localhost:3000`
-- `http://localhost:5500`
-- `http://127.0.0.1:5500`
-- `http://localhost:8080`
-- `http://127.0.0.1:8080`
+Retrieves a paginated list of completed single-player and multiplayer matches for the given user.
+
+#### Response (HTTP 200 OK)
+```json
+{
+  "content": [
+    {
+      "gameId": 101,
+      "gameMode": "COMPUTER",
+      "opponent": "Computer",
+      "difficulty": "HARD",
+      "outcome": "WIN",
+      "completedAt": "2026-09-18T04:05:00.000Z"
+    }
+  ],
+  "pageNumber": 0,
+  "pageSize": 10,
+  "totalElements": 1,
+  "totalPages": 1,
+  "last": true
+}
+```
+
+---
+
+### 2.5 Global Leaderboard
+`GET /api/leaderboard?limit=10`
+
+Returns the top ranked players ordered by total wins (descending) and win rate.
+
+#### Response (HTTP 200 OK)
+```json
+[
+  {
+    "rank": 1,
+    "userId": 1,
+    "username": "Neo",
+    "gamesPlayed": 12,
+    "wins": 10,
+    "losses": 1,
+    "draws": 1,
+    "winRate": 83.33
+  }
+]
+```
+
+---
+
+## 3. WebSocket & STOMP Protocol
+
+### 3.1 Connection Handshake
+- **WebSocket Endpoint**: `/ws`
+- **Supported Transports**: Native WebSocket (`ws://localhost:8080/ws`) and SockJS fallback (`http://localhost:8080/ws`).
+- **Authentication/Session**: Anonymous handshake automatically assigns a unique UUID `Principal` to route private user responses.
+
+---
+
+### 3.2 Client Destinations (`/app`)
+
+#### Join Matchmaking Queue
+- **Destination**: `/app/matchmaking/join`
+- **Payload**:
+  ```json
+  {
+    "userId": 1,
+    "username": "Neo"
+  }
+  ```
+
+#### Leave Matchmaking Queue
+- **Destination**: `/app/matchmaking/leave`
+- **Payload**:
+  ```json
+  {
+    "userId": 1
+  }
+  ```
+
+#### Submit Multiplayer Move
+- **Destination**: `/app/game/{gameId}/move`
+- **Payload**:
+  ```json
+  {
+    "position": 5,
+    "userId": 1
+  }
+  ```
+
+---
+
+### 3.3 Server Destinations (`/user` and `/topic`)
+
+#### Private Match Found Notification
+- **Destination**: `/user/queue/match` (Fallback: `/topic/match/{userId}`)
+- **Payload (`MatchFoundMessage`)**:
+  ```json
+  {
+    "gameId": "7fe0e18d-3b55-4a96-8bd2-b0771921be76",
+    "yourSymbol": "X",
+    "opponentUsername": "Trinity",
+    "currentTurn": "X",
+    "board": ["", "", "", "", "", "", "", "", ""],
+    "status": "IN_PROGRESS"
+  }
+  ```
+
+#### Public Game Session Broadcast
+- **Destination**: `/topic/game/{gameId}`
+- **Payload (`GameStateMessage`)**:
+  ```json
+  {
+    "type": "GAME_UPDATE",
+    "gameId": "7fe0e18d-3b55-4a96-8bd2-b0771921be76",
+    "board": ["", "", "", "", "X", "", "", "", ""],
+    "currentTurn": "O",
+    "status": "IN_PROGRESS",
+    "message": "Player X moved to position 5.",
+    "lastMovePosition": 5,
+    "lastMovePlayer": "Neo",
+    "winner": null,
+    "winningLine": null
+  }
+  ```
+
+#### Private Error Notifications
+- **Destination**: `/user/queue/errors`
+- **Payload (`WebSocketErrorMessage`)**:
+  ```json
+  {
+    "errorCode": "NOT_YOUR_TURN",
+    "errorMessage": "It is not your turn.",
+    "timestamp": 1726617600000
+  }
+  ```
