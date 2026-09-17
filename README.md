@@ -193,7 +193,7 @@ You have two convenient options:
 
 ## 8. How to Run Automated Tests
 
-To execute the full automated test suite (83 unit and integration tests):
+To execute the full automated test suite (95 unit and integration tests):
 
 ```bash
 cd backend
@@ -202,13 +202,13 @@ mvn clean test
 
 ### Test Coverage Highlights
 * `GameEngineTest` (30 tests): Validates all 8 winning rows/columns/diagonals, draw conditions, winning move simulation, and board/move boundary rules.
-* `ComputerPlayerTest` (9 tests): Validates Easy random selection, Medium scenarios (A: Win, B: Block, C: Random fallback, D: Priority Win over Block), injectable deterministic randomness, and rejection of deferred Hard AI.
+* `ComputerPlayerTest` (10 tests): Validates Easy random selection, Medium scenarios (A: Win, B: Block, C: Random fallback, D: Priority Win over Block), and Hard strategy delegation (winning move, blocking move).
 * `EasyStrategyTest` (5 tests): Validates uniform random distribution, empty board moves, terminal/full board exceptions, and sole remaining empty cell picks.
 * `MediumStrategyTest` (5 tests): Tests winning move priority, player blocking priority, win over block prioritization, and empty cell fallbacks.
-* `HardStrategyTest` (2 tests): Tests strategy registration and explicit `UnsupportedOperationException` for deferred Minimax.
+* `HardStrategyTest` (13 tests): Tests unbeatable Minimax with alpha-beta pruning, immediate win, immediate block, fork prevention, blunder exploitation, deterministic tie-breaking, alpha-beta node reduction, 100-game Monte Carlo simulation, and all 9 opening responses.
 * `DomainModelTest` (4 tests): Tests `GameMode`, `PlayerSymbol`, `Difficulty`, and `GameStatus` enums and terminal state helpers.
-* `GameServiceTest` (10 tests): Validates turn progression, immediate player victory termination, draw detection on 9th move, illegal move rejections, and informative 400 rejection for Hard difficulty in Phase 1.
-* `GameControllerTest` (17 tests): Full-stack `MockMvc` testing covering endpoint routing, JSON aliasing (`move`/`position`), game outcome payloads, and all 400 Bad Request error handlers including Phase 1 Hard difficulty deferral.
+* `GameServiceTest` (10 tests): Validates turn progression, immediate player victory termination, draw detection on 9th move, illegal move rejections, and seamless processing of `Difficulty.HARD`.
+* `GameControllerTest` (17 tests): Full-stack `MockMvc` testing covering endpoint routing, JSON aliasing (`move`/`position`), game outcome payloads, and successful 200 OK processing of `difficulty: "HARD"`.
 * `TicTacToeApplicationTests` (1 test): Verifies Spring application context loading and static welcome page mapping.
 
 ---
@@ -222,9 +222,12 @@ The project is currently evolving toward **MVP2** in structured phases:
   - Domain model enhancements (`GameMode`, `PlayerSymbol`, `Difficulty.HARD`, `GameStatus` lifecycle).
   - Target architecture diagrams, persistence schema designs, STOMP contracts, and ADRs documented in [docs/MVP2_PHASE1.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE1.md).
   - 100% backward compatibility preserved for MVP1 REST API, board rules, and frontend.
-- [ ] **Phase 2: Hard Difficulty AI** (Next Phase)
-  - Unbeatable computer opponent powered by Minimax algorithm with alpha-beta pruning.
-- [ ] **Phase 3: Persistent Leaderboards & History**
+- [x] **Phase 2: Hard Difficulty AI** (Completed)
+  - Unbeatable computer opponent powered by the Minimax algorithm with alpha-beta pruning.
+  - Depth-sensitive heuristic scoring (`+10 - depth`, `depth - 10`, `0`).
+  - Board state immutability via `Board.withMove(...)`.
+  - Comprehensive documentation in [docs/MVP2_PHASE2.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE2.md).
+- [ ] **Phase 3: Persistent Leaderboards & History** (Next Phase)
   - Spring Data JPA, PostgreSQL/relational storage, User profiles, immutable game records, and rank queries.
 - [ ] **Phase 4: Online Real-Time Multiplayer**
   - Spring WebSocket with STOMP protocol, matchmaking queue, game rooms, and player disconnect handling.

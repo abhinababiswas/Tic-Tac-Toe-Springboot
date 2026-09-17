@@ -158,22 +158,31 @@ class ComputerPlayerTest {
     }
 
     @Nested
-    @DisplayName("Hard Strategy - Deferred to Phase 2")
+    @DisplayName("Hard Strategy - Minimax with Alpha-Beta Pruning")
     class HardStrategyTests {
 
         @Test
-        @DisplayName("Throws UnsupportedOperationException when Hard difficulty is selected")
-        void shouldThrowWhenHardDifficultyRequested() {
+        @DisplayName("Executes Hard Strategy and takes immediate winning move")
+        void shouldExecuteHardStrategyAndWin() {
             Board board = createBoard(
-                "X", "", "",
-                "",  "", "",
-                "",  "", ""
+                "O", "O", "",
+                "X", "X", "",
+                "",  "",  ""
             );
-            UnsupportedOperationException exception = assertThrows(
-                UnsupportedOperationException.class,
-                () -> computerPlayer.chooseMove(board, Difficulty.HARD)
+            int chosenIndex = computerPlayer.chooseMove(board, Difficulty.HARD);
+            assertEquals(2, chosenIndex, "Hard AI should choose position 3 (index 2) to win.");
+        }
+
+        @Test
+        @DisplayName("Executes Hard Strategy and blocks immediate human win")
+        void shouldExecuteHardStrategyAndBlock() {
+            Board board = createBoard(
+                "X", "X", "",
+                "O", "",  "",
+                "",  "",  "O"
             );
-            assertTrue(exception.getMessage().contains("Phase 2"));
+            int chosenIndex = computerPlayer.chooseMove(board, Difficulty.HARD);
+            assertEquals(2, chosenIndex, "Hard AI should choose position 3 (index 2) to block player.");
         }
     }
 

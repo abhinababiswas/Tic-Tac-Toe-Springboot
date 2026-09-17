@@ -290,25 +290,26 @@ The system achieves comprehensive test coverage (64 automated tests) across all 
 
 ## 12. Evolution to MVP2 (Phase 1 Architecture Foundation)
 
-Phase 1 safely establishes the architecture and data model foundation for MVP2:
+Phase 1 established the architecture and data model foundation for MVP2:
+- Strategy pattern for AI difficulties (`MoveStrategy`, `EasyStrategy`, `MediumStrategy`, `HardStrategy`).
+- Domain model expansion (`GameMode`, `PlayerSymbol`, `Difficulty`, `GameStatus`).
+- Detailed specifications, data schemas, STOMP contracts, and ADRs: [docs/MVP2_PHASE1.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE1.md).
 
-### 12.1 Strategy Pattern for AI
-AI algorithms are decoupled from turn coordination via the `MoveStrategy` interface:
-```
-com.tictactoe.engine.strategy.MoveStrategy
-├── EasyStrategy   (Uniform random selection)
-├── MediumStrategy (Win immediately > Block player > Random)
-└── HardStrategy   (Placeholder for Phase 2 Minimax with Alpha-Beta Pruning)
-```
-`ComputerPlayer` acts as a strategy dispatcher while preserving backward-compatible helper methods.
+---
 
-### 12.2 Domain Model Expansion
-- `GameMode`: `COMPUTER`, `MULTIPLAYER`.
-- `PlayerSymbol`: `X`, `O` with `opponent()` and value helpers.
-- `Difficulty`: `EASY`, `MEDIUM`, `HARD` (with informative HTTP 400 rejection during Phase 1).
-- `GameStatus`: Expanded with multiplayer lifecycle states (`WAITING`, `MATCHED`, `PLAYER_ONE_WON`, `PLAYER_TWO_WON`, `ABANDONED`) and `isTerminal()`.
+## 13. Hard AI Architecture (Phase 2: Minimax + Alpha-Beta Pruning)
 
-### 12.3 Target MVP2 Capabilities & Documentation
-Detailed architectural specifications, data model designs, STOMP contracts, and ADRs are documented in:
-👉 [MVP2 Phase 1 Architecture & Data Model Documentation](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE1.md)
+Phase 2 implements the unbeatable `HardStrategy` using the Minimax algorithm:
+
+### 13.1 Strategy Specification
+- **Maximizing Player**: Computer (`O`).
+- **Minimizing Player**: Human Player (`X`).
+- **Scoring Function**:
+  - Computer Win: `+10 - depth` (promotes earliest win).
+  - Human Win: `depth - 10` (delays inevitable loss).
+  - Draw: `0`.
+- **Alpha-Beta Pruning**: Prunes subtrees where `beta <= alpha`, reducing evaluations by ~96% on opening moves.
+- **Deterministic Tie-Breaking**: Scans moves in index order 0..8, choosing the first move with maximum score.
+- **State Immutability**: Uses pure `Board.withMove(...)` functional transformations to prevent board corruption.
+- **Documentation**: Comprehensive analysis and metrics available in [docs/MVP2_PHASE2.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE2.md).
 

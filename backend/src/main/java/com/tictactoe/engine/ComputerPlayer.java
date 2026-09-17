@@ -39,7 +39,7 @@ public class ComputerPlayer {
         Random rng = random != null ? random : new Random();
         EasyStrategy easy = new EasyStrategy(rng);
         MediumStrategy medium = new MediumStrategy(gameEngine, easy);
-        HardStrategy hard = new HardStrategy();
+        HardStrategy hard = new HardStrategy(gameEngine);
 
         strategies.put(Difficulty.EASY, easy);
         strategies.put(Difficulty.MEDIUM, medium);

@@ -44,6 +44,7 @@ const statusElement = document.getElementById("game-status");
 const btnRestart = document.getElementById("btn-restart");
 const diffEasyBtn = document.getElementById("diff-easy");
 const diffMediumBtn = document.getElementById("diff-medium");
+const diffHardBtn = document.getElementById("diff-hard");
 const scorePlayerElement = document.getElementById("score-player");
 const scoreComputerElement = document.getElementById("score-computer");
 const scoreDrawsElement = document.getElementById("score-draws");
@@ -55,6 +56,9 @@ function init() {
     // Difficulty toggle listeners
     diffEasyBtn.addEventListener("click", () => setDifficulty("EASY"));
     diffMediumBtn.addEventListener("click", () => setDifficulty("MEDIUM"));
+    if (diffHardBtn) {
+        diffHardBtn.addEventListener("click", () => setDifficulty("HARD"));
+    }
 
     // Reset game listener
     btnRestart.addEventListener("click", startNewGame);
@@ -71,24 +75,19 @@ function init() {
  * Sets the active AI difficulty level and updates UI controls.
  * Per MVP UX specifications, changing difficulty resets the current board
  * for a new game while preserving session scores.
- * @param {"EASY" | "MEDIUM"} difficulty 
+ * @param {"EASY" | "MEDIUM" | "HARD"} difficulty 
  */
 function setDifficulty(difficulty) {
     if (gameState.difficulty === difficulty) return;
 
     gameState.difficulty = difficulty;
 
-    if (difficulty === "EASY") {
-        diffEasyBtn.classList.add("active");
-        diffEasyBtn.setAttribute("aria-checked", "true");
-        diffMediumBtn.classList.remove("active");
-        diffMediumBtn.setAttribute("aria-checked", "false");
-    } else {
-        diffMediumBtn.classList.add("active");
-        diffMediumBtn.setAttribute("aria-checked", "true");
-        diffEasyBtn.classList.remove("active");
-        diffEasyBtn.setAttribute("aria-checked", "false");
-    }
+    [diffEasyBtn, diffMediumBtn, diffHardBtn].forEach(btn => {
+        if (!btn) return;
+        const isActive = btn.dataset.difficulty === difficulty;
+        btn.classList.toggle("active", isActive);
+        btn.setAttribute("aria-checked", isActive ? "true" : "false");
+    });
 
     // Changing difficulty resets the board state while preserving scores
     const hasMoves = gameState.board.some(cell => cell !== "");

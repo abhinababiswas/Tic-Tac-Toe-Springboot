@@ -168,15 +168,24 @@ class GameServiceTest {
     }
 
     @Test
-    @DisplayName("Rejects move when difficulty is HARD in Phase 1 with informative InvalidMoveException")
-    void shouldRejectMoveWhenDifficultyIsHard() {
+    @DisplayName("Processes move when difficulty is HARD using Minimax strategy")
+    void shouldProcessMoveWhenDifficultyIsHard() {
+        // Player plays center (position 5) with HARD difficulty
         List<String> cells = Arrays.asList(
             "", "", "",
             "", "", "",
             "", "", ""
         );
         MoveRequest request = new MoveRequest(cells, 5, Difficulty.HARD);
-        InvalidMoveException ex = assertThrows(InvalidMoveException.class, () -> gameService.processMove(request));
-        assertTrue(ex.getMessage().contains("Phase 2"));
+        GameResponse response = gameService.processMove(request);
+
+        assertNotNull(response);
+        assertEquals(GameStatus.IN_PROGRESS, response.getStatus());
+        assertEquals("X", response.getBoard().get(4)); // center position
+        assertNotNull(response.getComputerMove());
+        // Computer responded with a corner (0, 2, 6, or 8)
+        List<Integer> validCorners = Arrays.asList(1, 3, 7, 9); // 1-based positions
+        assertTrue(validCorners.contains(response.getComputerMove()),
+            "Against center move, Hard AI should take a corner: " + response.getComputerMove());
     }
 }
