@@ -354,5 +354,24 @@ class GameControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error", is("BAD_REQUEST")));
         }
+
+        @Test
+        @DisplayName("Rejects HARD difficulty in Phase 1 with INVALID_MOVE informing Phase 2 deferral")
+        void shouldRejectHardDifficultyInPhase1() throws Exception {
+            String payload = """
+                {
+                    "board": ["", "", "", "", "", "", "", "", ""],
+                    "position": 5,
+                    "difficulty": "HARD"
+                }
+                """;
+
+            mockMvc.perform(post("/api/game/move")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(payload))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error", is("INVALID_MOVE")))
+                .andExpect(jsonPath("$.message", containsString("Phase 2")));
+        }
     }
 }

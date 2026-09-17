@@ -166,4 +166,17 @@ class GameServiceTest {
         MoveRequest request = new MoveRequest(cells, 1, Difficulty.MEDIUM);
         assertThrows(InvalidBoardException.class, () -> gameService.processMove(request));
     }
+
+    @Test
+    @DisplayName("Rejects move when difficulty is HARD in Phase 1 with informative InvalidMoveException")
+    void shouldRejectMoveWhenDifficultyIsHard() {
+        List<String> cells = Arrays.asList(
+            "", "", "",
+            "", "", "",
+            "", "", ""
+        );
+        MoveRequest request = new MoveRequest(cells, 5, Difficulty.HARD);
+        InvalidMoveException ex = assertThrows(InvalidMoveException.class, () -> gameService.processMove(request));
+        assertTrue(ex.getMessage().contains("Phase 2"));
+    }
 }

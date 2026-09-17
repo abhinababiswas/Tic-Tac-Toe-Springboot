@@ -1,39 +1,62 @@
 package com.tictactoe.engine;
 
+import com.tictactoe.engine.strategy.EasyStrategy;
+import com.tictactoe.engine.strategy.HardStrategy;
+import com.tictactoe.engine.strategy.MediumStrategy;
+import com.tictactoe.engine.strategy.MoveStrategy;
 import com.tictactoe.model.Board;
 import com.tictactoe.model.Difficulty;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.EnumMap;
 import java.util.List;
-import java.util.OptionalInt;
+import java.util.Map;
 import java.util.Random;
 
 /**
- * Computer decision-making engine for Tic-Tac-Toe.
- * Supports Easy (pure random) and Medium (win -> block -> random) strategies.
+ * Computer decision-making coordinator for Tic-Tac-Toe.
+ * Delegates move calculations to concrete MoveStrategy implementations
+ * based on the requested Difficulty level.
  */
 @Component
 public class ComputerPlayer {
 
-    private final GameEngine gameEngine;
-    private final Random random;
+    private final Map<Difficulty, MoveStrategy> strategies = new EnumMap<>(Difficulty.class);
 
     @Autowired
+    public ComputerPlayer(List<MoveStrategy> strategyList) {
+        for (MoveStrategy strategy : strategyList) {
+            strategies.put(strategy.getDifficulty(), strategy);
+        }
+    }
+
     public ComputerPlayer(GameEngine gameEngine) {
         this(gameEngine, new Random());
     }
 
     public ComputerPlayer(GameEngine gameEngine, Random random) {
-        this.gameEngine = gameEngine;
-        this.random = random != null ? random : new Random();
+        Random rng = random != null ? random : new Random();
+        EasyStrategy easy = new EasyStrategy(rng);
+        MediumStrategy medium = new MediumStrategy(gameEngine, easy);
+        HardStrategy hard = new HardStrategy();
+
+        strategies.put(Difficulty.EASY, easy);
+        strategies.put(Difficulty.MEDIUM, medium);
+        strategies.put(Difficulty.HARD, hard);
+    }
+
+    public ComputerPlayer(Map<Difficulty, MoveStrategy> strategyMap) {
+        if (strategyMap != null) {
+            strategies.putAll(strategyMap);
+        }
     }
 
     /**
      * Chooses a move index (0-8) based on the specified difficulty level.
      *
      * @param board current board state
-     * @param difficulty EASY or MEDIUM
+     * @param difficulty EASY, MEDIUM, or HARD
      * @return 0-based cell index for computer's move
      */
     public int chooseMove(Board board, Difficulty difficulty) {
@@ -41,46 +64,25 @@ public class ComputerPlayer {
             difficulty = Difficulty.MEDIUM;
         }
 
-        return switch (difficulty) {
-            case EASY -> chooseEasyMove(board);
-            case MEDIUM -> chooseMediumMove(board);
-        };
+        MoveStrategy strategy = strategies.get(difficulty);
+        if (strategy == null) {
+            throw new IllegalArgumentException("No strategy available for difficulty: " + difficulty);
+        }
+
+        return strategy.chooseMove(board);
     }
 
     /**
-     * EASY Strategy:
-     * Picks uniformly at random from all available empty cells.
-     * Has no heuristics or strategic intent.
+     * Backward-compatible convenience method for Easy moves.
      */
     public int chooseEasyMove(Board board) {
-        List<Integer> emptyIndices = board.getEmptyIndices();
-        if (emptyIndices.isEmpty()) {
-            throw new IllegalStateException("Cannot choose move: No empty cells available on the board.");
-        }
-        int randomIndex = random.nextInt(emptyIndices.size());
-        return emptyIndices.get(randomIndex);
+        return chooseMove(board, Difficulty.EASY);
     }
 
     /**
-     * MEDIUM Strategy:
-     * 1. Priority 1 (Win): If computer can win immediately, take the winning cell.
-     * 2. Priority 2 (Block): If player can win immediately, take that cell to block the player.
-     * 3. Priority 3 (Random): Otherwise, pick a random available cell.
+     * Backward-compatible convenience method for Medium moves.
      */
     public int chooseMediumMove(Board board) {
-        // Priority 1: Check if computer ('O') can win immediately
-        OptionalInt winningMove = gameEngine.findWinningMoveIndex(board, Board.COMPUTER_SYMBOL);
-        if (winningMove.isPresent()) {
-            return winningMove.getAsInt();
-        }
-
-        // Priority 2: Check if player ('X') threatens an immediate win, and block it
-        OptionalInt blockingMove = gameEngine.findWinningMoveIndex(board, Board.PLAYER_SYMBOL);
-        if (blockingMove.isPresent()) {
-            return blockingMove.getAsInt();
-        }
-
-        // Priority 3: Fallback to random empty position
-        return chooseEasyMove(board);
+        return chooseMove(board, Difficulty.MEDIUM);
     }
 }

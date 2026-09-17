@@ -193,7 +193,7 @@ You have two convenient options:
 
 ## 8. How to Run Automated Tests
 
-To execute the full automated test suite (64 unit and integration tests):
+To execute the full automated test suite (83 unit and integration tests):
 
 ```bash
 cd backend
@@ -202,30 +202,32 @@ mvn clean test
 
 ### Test Coverage Highlights
 * `GameEngineTest` (30 tests): Validates all 8 winning rows/columns/diagonals, draw conditions, winning move simulation, and board/move boundary rules.
-* `ComputerPlayerTest` (8 tests): Validates Easy random selection, Medium scenarios (A: Win, B: Block, C: Random fallback, D: Priority Win over Block), and injectable deterministic randomness.
-* `GameServiceTest` (9 tests): Validates turn progression, immediate player victory termination, draw detection on 9th move, and illegal move rejections.
-* `GameControllerTest` (16 tests): Full-stack `MockMvc` testing covering endpoint routing, JSON aliasing (`move`/`position`), game outcome payloads, and all 400 Bad Request error handlers.
+* `ComputerPlayerTest` (9 tests): Validates Easy random selection, Medium scenarios (A: Win, B: Block, C: Random fallback, D: Priority Win over Block), injectable deterministic randomness, and rejection of deferred Hard AI.
+* `EasyStrategyTest` (5 tests): Validates uniform random distribution, empty board moves, terminal/full board exceptions, and sole remaining empty cell picks.
+* `MediumStrategyTest` (5 tests): Tests winning move priority, player blocking priority, win over block prioritization, and empty cell fallbacks.
+* `HardStrategyTest` (2 tests): Tests strategy registration and explicit `UnsupportedOperationException` for deferred Minimax.
+* `DomainModelTest` (4 tests): Tests `GameMode`, `PlayerSymbol`, `Difficulty`, and `GameStatus` enums and terminal state helpers.
+* `GameServiceTest` (10 tests): Validates turn progression, immediate player victory termination, draw detection on 9th move, illegal move rejections, and informative 400 rejection for Hard difficulty in Phase 1.
+* `GameControllerTest` (17 tests): Full-stack `MockMvc` testing covering endpoint routing, JSON aliasing (`move`/`position`), game outcome payloads, and all 400 Bad Request error handlers including Phase 1 Hard difficulty deferral.
 * `TicTacToeApplicationTests` (1 test): Verifies Spring application context loading and static welcome page mapping.
 
 ---
 
-## 9. Deliberate Scope Boundaries (MVP 1)
+## 9. MVP2 Evolution & Roadmap
 
-To maintain architectural focus and high engineering quality, the following features are intentionally **excluded** from MVP 1:
+The project is currently evolving toward **MVP2** in structured phases:
 
-* ❌ **Database / Persistence**: No database connection or saved match history across browser sessions.
-* ❌ **User Authentication**: No user login, registration, or accounts.
-* ❌ **Multiplayer / Matchmaking**: Human vs Human and online multiplayer are omitted.
-* ❌ **Hard / Minimax AI**: Hard difficulty using full recursive game-tree search is reserved for a future iteration.
-* ❌ **WebSockets**: Real-time duplex channels are unnecessary for a turn-based stateless REST game.
+- [x] **Phase 1: Architecture & Data Model Foundation** (Completed)
+  - Strategy pattern refactoring for AI difficulties (`MoveStrategy`, `EasyStrategy`, `MediumStrategy`, `HardStrategy`).
+  - Domain model enhancements (`GameMode`, `PlayerSymbol`, `Difficulty.HARD`, `GameStatus` lifecycle).
+  - Target architecture diagrams, persistence schema designs, STOMP contracts, and ADRs documented in [docs/MVP2_PHASE1.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE1.md).
+  - 100% backward compatibility preserved for MVP1 REST API, board rules, and frontend.
+- [ ] **Phase 2: Hard Difficulty AI** (Next Phase)
+  - Unbeatable computer opponent powered by Minimax algorithm with alpha-beta pruning.
+- [ ] **Phase 3: Persistent Leaderboards & History**
+  - Spring Data JPA, PostgreSQL/relational storage, User profiles, immutable game records, and rank queries.
+- [ ] **Phase 4: Online Real-Time Multiplayer**
+  - Spring WebSocket with STOMP protocol, matchmaking queue, game rooms, and player disconnect handling.
+- [ ] **Phase 5: Modern Responsive Web UI**
+  - Professional redesign with navigation bar, game areas, leaderboards, match history, and profile screens.
 
----
-
-## 10. Future Roadmap
-
-Potential future enhancements beyond MVP 1:
-1. **Hard Difficulty**: Unbeatable computer opponent powered by the Minimax algorithm with alpha-beta pruning.
-2. **Local 2-Player Mode**: Pass-and-play mode allowing two humans to play on the same screen.
-3. **Persistent Leaderboards & History**: Spring Data JPA / PostgreSQL integration with user profiles and win/loss statistics.
-4. **Online Multiplayer**: WebSocket-based matchmaking with STOMP protocol.
-5. **Theme Customization**: User-selectable visual themes and sound effects.

@@ -73,6 +73,9 @@ public class GameService {
 
         // 6. Compute and apply computer move
         Difficulty difficulty = request.getDifficulty() != null ? request.getDifficulty() : Difficulty.MEDIUM;
+        if (difficulty == Difficulty.HARD) {
+            throw new InvalidMoveException("Hard difficulty is not supported in Phase 1 and will be introduced in MVP2 Phase 2.");
+        }
         int computerIndex = computerPlayer.chooseMove(board, difficulty);
         int computerPosition = Board.indexToPosition(computerIndex);
         board = board.withMove(computerIndex, Board.COMPUTER_SYMBOL);

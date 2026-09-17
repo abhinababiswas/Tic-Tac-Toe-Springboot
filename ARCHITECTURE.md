@@ -285,3 +285,30 @@ The system achieves comprehensive test coverage (64 automated tests) across all 
 - **AI Strategy Tests (`ComputerPlayerTest`)**: Deterministic testing with injected `Random` seeds, verifying Easy uniform distribution, Medium Scenario A (Win), Scenario B (Block), Scenario C (Random), and Scenario D (Strict Win > Block prioritization).
 - **Service Orchestration Tests (`GameServiceTest`)**: Verifies that human winning moves immediately terminate the turn without triggering a computer response, that 9th-move draws correctly resolve, and that illegal moves throw expected domain exceptions.
 - **API Integration Tests (`GameControllerTest`)**: Full-stack Spring MVC tests using `MockMvc` verifying HTTP status codes, JSON serialization/deserialization, alias mapping (`move`/`position`), and clean error payloads free from stack traces.
+
+---
+
+## 12. Evolution to MVP2 (Phase 1 Architecture Foundation)
+
+Phase 1 safely establishes the architecture and data model foundation for MVP2:
+
+### 12.1 Strategy Pattern for AI
+AI algorithms are decoupled from turn coordination via the `MoveStrategy` interface:
+```
+com.tictactoe.engine.strategy.MoveStrategy
+├── EasyStrategy   (Uniform random selection)
+├── MediumStrategy (Win immediately > Block player > Random)
+└── HardStrategy   (Placeholder for Phase 2 Minimax with Alpha-Beta Pruning)
+```
+`ComputerPlayer` acts as a strategy dispatcher while preserving backward-compatible helper methods.
+
+### 12.2 Domain Model Expansion
+- `GameMode`: `COMPUTER`, `MULTIPLAYER`.
+- `PlayerSymbol`: `X`, `O` with `opponent()` and value helpers.
+- `Difficulty`: `EASY`, `MEDIUM`, `HARD` (with informative HTTP 400 rejection during Phase 1).
+- `GameStatus`: Expanded with multiplayer lifecycle states (`WAITING`, `MATCHED`, `PLAYER_ONE_WON`, `PLAYER_TWO_WON`, `ABANDONED`) and `isTerminal()`.
+
+### 12.3 Target MVP2 Capabilities & Documentation
+Detailed architectural specifications, data model designs, STOMP contracts, and ADRs are documented in:
+👉 [MVP2 Phase 1 Architecture & Data Model Documentation](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE1.md)
+

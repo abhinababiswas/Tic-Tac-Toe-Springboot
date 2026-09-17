@@ -5,5 +5,6 @@ package com.tictactoe.model;
  */
 public enum Difficulty {
     EASY,
-    MEDIUM
+    MEDIUM,
+    HARD
 }

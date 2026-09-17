@@ -157,6 +157,26 @@ class ComputerPlayerTest {
         }
     }
 
+    @Nested
+    @DisplayName("Hard Strategy - Deferred to Phase 2")
+    class HardStrategyTests {
+
+        @Test
+        @DisplayName("Throws UnsupportedOperationException when Hard difficulty is selected")
+        void shouldThrowWhenHardDifficultyRequested() {
+            Board board = createBoard(
+                "X", "", "",
+                "",  "", "",
+                "",  "", ""
+            );
+            UnsupportedOperationException exception = assertThrows(
+                UnsupportedOperationException.class,
+                () -> computerPlayer.chooseMove(board, Difficulty.HARD)
+            );
+            assertTrue(exception.getMessage().contains("Phase 2"));
+        }
+    }
+
     private static Board createBoard(String... cells) {
         return new Board(Arrays.asList(cells));
     }
