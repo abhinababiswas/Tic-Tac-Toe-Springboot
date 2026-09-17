@@ -3,174 +3,449 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe — Player vs Computer</title>
-    <meta name="description" content="A clean, responsive Tic-Tac-Toe web game powered by a stateless Spring Boot backend.">
+    <title>Tic-Tac-Toe Arena — Play vs Computer & Online Multiplayer</title>
+    <meta name="description" content="A modern, high-performance Tic-Tac-Toe platform. Challenge the unbeatable Minimax AI or battle real players online in real time.">
+    
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="app-container">
-        <header class="game-header">
-            <h1>Tic-Tac-Toe</h1>
-            <p class="subtitle">Player vs Computer</p>
-        </header>
+    <!-- Site Navigation Bar -->
+    <header class="site-header">
+        <div class="nav-container">
+            <a href="#home" class="brand-logo" id="nav-brand" aria-label="Tic-Tac-Toe Home">
+                <div class="brand-icon">✕</div>
+                <span>TIC-TAC-TOE</span>
+            </a>
 
-        <section class="profile-bar" id="profile-bar" aria-label="Player Profile">
-            <span id="player-display">Playing as: <strong>Guest</strong></span>
-            <div class="profile-actions">
-                <button type="button" id="btn-toggle-auth" class="btn-sm">Log In</button>
-                <button type="button" id="btn-toggle-stats" class="btn-sm">Stats</button>
-            </div>
-        </section>
+            <nav>
+                <ul class="nav-links" id="nav-links">
+                    <li><a href="#home" class="nav-link active" data-view="home">Home</a></li>
+                    <li><a href="#play" class="nav-link" data-view="play">Play vs AI</a></li>
+                    <li><a href="#multiplayer" class="nav-link" data-view="multiplayer">Multiplayer</a></li>
+                    <li><a href="#leaderboard" class="nav-link" data-view="leaderboard">Leaderboard</a></li>
+                    <li><a href="#history" class="nav-link" data-view="history">History</a></li>
+                </ul>
+            </nav>
 
-        <!-- Minimal Identity & Stats Drawer -->
-        <div id="stats-panel" class="stats-panel hidden" aria-hidden="true">
-            <div class="panel-header">
-                <h2 id="panel-title">Player & Leaderboard</h2>
-                <button type="button" id="btn-close-panel" class="close-btn" aria-label="Close panel">&times;</button>
-            </div>
-            
-            <div id="auth-section" class="panel-section">
-                <label for="username-input" class="control-label">Enter Username:</label>
-                <div class="input-row">
-                    <input type="text" id="username-input" placeholder="e.g. Neo" maxlength="30">
-                    <button type="button" id="btn-submit-user" class="btn-sm btn-primary">Save</button>
-                    <button type="button" id="btn-guest-mode" class="btn-sm btn-secondary">Guest</button>
-                </div>
-                <p id="user-status-msg" class="panel-status-msg"></p>
-            </div>
-
-            <div class="panel-section">
-                <h3>Top Leaderboard</h3>
-                <div id="leaderboard-table-container" class="table-container">
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>User</th>
-                                <th>W</th>
-                                <th>L</th>
-                                <th>D</th>
-                                <th>Win %</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leaderboard-body">
-                            <tr><td colspan="6" class="text-muted">Loading leaderboard...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div id="history-section" class="panel-section hidden">
-                <h3>My Recent Games</h3>
-                <div id="history-list" class="history-list">
-                    <p class="text-muted">No games recorded yet.</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="mode-selector" role="radiogroup" aria-label="Game Mode">
-            <button type="button" class="mode-btn active" id="mode-computer" data-mode="COMPUTER">vs Computer</button>
-            <button type="button" class="mode-btn" id="mode-multiplayer" data-mode="MULTIPLAYER">Online Multiplayer</button>
-        </div>
-
-        <section class="controls-panel" aria-label="Game Controls">
-            <div class="difficulty-container" id="difficulty-panel">
-                <span class="control-label" id="difficulty-label">Difficulty:</span>
-                <div class="segmented-control" role="radiogroup" aria-labelledby="difficulty-label">
-                    <button type="button" 
-                            class="segment-btn active" 
-                            id="diff-easy" 
-                            role="radio" 
-                            aria-checked="true" 
-                            data-difficulty="EASY">
-                        Easy
-                    </button>
-                    <button type="button" 
-                            class="segment-btn" 
-                            id="diff-medium" 
-                            role="radio" 
-                            aria-checked="false" 
-                            data-difficulty="MEDIUM">
-                        Medium
-                    </button>
-                    <button type="button" 
-                            class="segment-btn" 
-                            id="diff-hard" 
-                            role="radio" 
-                            aria-checked="false" 
-                            data-difficulty="HARD">
-                        Hard
-                    </button>
-                </div>
-            </div>
-
-            <!-- Multiplayer Controls Bar -->
-            <div id="multiplayer-panel" class="multiplayer-panel hidden">
-                <div class="mp-status-row">
-                    <span id="mp-connection-badge" class="badge badge-disconnected">Offline</span>
-                    <span id="mp-queue-status">Ready to match</span>
-                </div>
-                <div class="mp-actions-row">
-                    <button type="button" id="btn-find-match" class="btn btn-primary">Find Match</button>
-                    <button type="button" id="btn-cancel-match" class="btn btn-secondary hidden">Cancel</button>
-                </div>
-                <div id="mp-match-info" class="mp-match-info hidden">
-                    <span id="mp-player-symbol">You: <strong>-</strong></span>
-                    <span id="mp-opponent-name">Opponent: <strong>-</strong></span>
-                </div>
-            </div>
-
-            <div class="scoreboard" aria-label="Current Session Scoreboard">
-                <div class="score-card player-card">
-                    <span class="score-label" id="score-label-player">Player (X)</span>
-                    <span class="score-value" id="score-player">0</span>
-                </div>
-                <div class="score-card computer-card">
-                    <span class="score-label" id="score-label-computer">Computer (O)</span>
-                    <span class="score-value" id="score-computer">0</span>
-                </div>
-                <div class="score-card draw-card">
-                    <span class="score-label">Draws</span>
-                    <span class="score-value" id="score-draws">0</span>
-                </div>
-            </div>
-        </section>
-
-        <main class="game-area">
-            <div class="status-container">
-                <div class="status-banner" id="game-status" aria-live="polite">
-                    Your turn! Select an empty cell.
-                </div>
-            </div>
-
-            <div class="board-container">
-                <div class="board" id="board" role="grid" aria-label="Tic-Tac-Toe Board">
-                    <button type="button" class="cell" data-position="1" data-index="0" aria-label="Position 1, empty"></button>
-                    <button type="button" class="cell" data-position="2" data-index="1" aria-label="Position 2, empty"></button>
-                    <button type="button" class="cell" data-position="3" data-index="2" aria-label="Position 3, empty"></button>
-                    <button type="button" class="cell" data-position="4" data-index="3" aria-label="Position 4, empty"></button>
-                    <button type="button" class="cell" data-position="5" data-index="4" aria-label="Position 5, empty"></button>
-                    <button type="button" class="cell" data-position="6" data-index="5" aria-label="Position 6, empty"></button>
-                    <button type="button" class="cell" data-position="7" data-index="6" aria-label="Position 7, empty"></button>
-                    <button type="button" class="cell" data-position="8" data-index="7" aria-label="Position 8, empty"></button>
-                    <button type="button" class="cell" data-position="9" data-index="8" aria-label="Position 9, empty"></button>
-                </div>
-            </div>
-
-            <div class="actions">
-                <button type="button" id="btn-restart" class="btn btn-primary" aria-label="Start a new game">
-                    New Game
+            <div class="nav-actions">
+                <button type="button" class="user-pill" id="btn-profile" aria-label="Open User Profile">
+                    <div class="user-avatar" id="user-avatar">?</div>
+                    <span id="nav-username">Guest</span>
+                </button>
+                <button type="button" class="mobile-nav-toggle" id="mobile-toggle" aria-label="Toggle navigation menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </button>
             </div>
-        </main>
+        </div>
+    </header>
 
-        <footer class="game-footer">
-            <p>Stateless Spring Boot Backend &bull; Vanilla Frontend</p>
-        </footer>
+    <!-- Main Content Container -->
+    <main class="main-wrapper">
+
+        <!-- ========================================== -->
+        <!-- VIEW: HOME / LANDING PAGE                  -->
+        <!-- ========================================== -->
+        <section id="view-home" class="view-section active-view" aria-label="Landing Page">
+            <div class="hero-section">
+                <div class="hero-badge">⚡ Real-Time Engine &bull; Spring Boot MVP2</div>
+                <h1 class="hero-title">Challenge the Board.<br><span>Outplay the Opponent.</span></h1>
+                <p class="hero-subtitle">
+                    Play against an unbeatable Minimax computer AI or challenge players across the globe in real-time online multiplayer.
+                </p>
+                <div class="hero-cta-group">
+                    <button type="button" class="btn btn-primary" id="btn-hero-play">
+                        🎮 Play vs Computer
+                    </button>
+                    <button type="button" class="btn btn-accent-red" id="btn-hero-multiplayer">
+                        🌐 Play Online
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="btn-hero-leaderboard">
+                        🏆 Leaderboard
+                    </button>
+                </div>
+            </div>
+
+            <!-- Game Modes Cards -->
+            <div class="modes-grid">
+                <div class="mode-card card-computer">
+                    <div class="mode-card-header">
+                        <span class="mode-badge mode-badge-blue">Single-Player</span>
+                        <span style="font-size: 1.5rem;">🤖</span>
+                    </div>
+                    <h2 class="mode-card-title">Player vs Computer</h2>
+                    <p class="mode-card-desc">
+                        Sharpen your tactics across three distinct difficulty levels. From casual practice to the mathematically optimal Minimax AI with alpha-beta pruning.
+                    </p>
+                    <ul class="features-list">
+                        <li>Easy: Random, casual placement</li>
+                        <li>Medium: Win-detection & tactical blocking</li>
+                        <li>Hard: Unbeatable Minimax + Alpha-Beta Pruning</li>
+                    </ul>
+                    <button type="button" class="btn btn-primary" id="btn-card-computer">Play vs AI</button>
+                </div>
+
+                <div class="mode-card card-multiplayer">
+                    <div class="mode-card-header">
+                        <span class="mode-badge mode-badge-red">Multiplayer</span>
+                        <span style="font-size: 1.5rem;">⚔️</span>
+                    </div>
+                    <h2 class="mode-card-title">Online Multiplayer</h2>
+                    <p class="mode-card-desc">
+                        Jump into live matchmaking powered by WebSocket and STOMP messaging. Challenge real players with full server-authoritative move validation.
+                    </p>
+                    <ul class="features-list">
+                        <li>Instant in-memory matchmaking queue</li>
+                        <li>Sub-millisecond move synchronization</li>
+                        <li>Persistent match records & global leaderboard</li>
+                    </ul>
+                    <button type="button" class="btn btn-accent-red" id="btn-card-multiplayer">Find Match</button>
+                </div>
+            </div>
+
+            <!-- Platform Highlights -->
+            <div class="features-section">
+                <div class="section-header">
+                    <h2 class="section-title">Why This Engine Stands Out</h2>
+                    <p class="section-desc">Designed with enterprise software craftsmanship from ground up.</p>
+                </div>
+                <div class="features-grid">
+                    <div class="feature-box">
+                        <div class="feature-box-icon">🛡️</div>
+                        <h3 class="feature-box-title">Server-Authoritative</h3>
+                        <p class="feature-box-text">The browser never calculates game rules. Every move, turn, and victory is validated authoritatively by Spring Boot.</p>
+                    </div>
+                    <div class="feature-box">
+                        <div class="feature-box-icon">🧠</div>
+                        <h3 class="feature-box-title">Optimal Minimax AI</h3>
+                        <p class="feature-box-text">Phase 2 AI uses game-tree evaluation with alpha-beta pruning to guarantee optimal moves in Hard mode.</p>
+                    </div>
+                    <div class="feature-box">
+                        <div class="feature-box-icon">⚡</div>
+                        <h3 class="feature-box-title">Real-Time STOMP</h3>
+                        <p class="feature-box-text">WebSocket duplex channel provides zero-latency move broadcasting and automatic disconnect recovery.</p>
+                    </div>
+                    <div class="feature-box">
+                        <div class="feature-box-icon">📊</div>
+                        <h3 class="feature-box-title">Persistent History</h3>
+                        <p class="feature-box-text">Spring Data JPA tracks completed matches and maintains global rankings with verified win-rate formulas.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW: PLAY VS COMPUTER                     -->
+        <!-- ========================================== -->
+        <section id="view-play" class="view-section" aria-label="Player vs Computer Arena">
+            <div class="arena-container">
+                <div class="arena-header">
+                    <h1 class="arena-title">Player vs Computer</h1>
+                    <p class="arena-subtitle">Stateless REST Architecture &bull; Instant Feedback</p>
+                </div>
+
+                <!-- Difficulty Selector -->
+                <div class="difficulty-selector" aria-label="AI Difficulty Level">
+                    <div class="difficulty-header-row">
+                        <span class="diff-label">Select Difficulty</span>
+                        <span class="diff-tooltip" id="diff-tooltip">Casual practice</span>
+                    </div>
+                    <div class="segmented-control" role="radiogroup" aria-label="Difficulty">
+                        <button type="button" class="segment-btn active" id="diff-easy" role="radio" aria-checked="true" data-difficulty="EASY">
+                            Easy
+                        </button>
+                        <button type="button" class="segment-btn" id="diff-medium" role="radio" aria-checked="false" data-difficulty="MEDIUM">
+                            Medium
+                        </button>
+                        <button type="button" class="segment-btn" id="diff-hard" role="radio" aria-checked="false" data-difficulty="HARD">
+                            Hard (Minimax)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Scoreboard -->
+                <div class="scoreboard" aria-label="Session Scores">
+                    <div class="score-card player-card">
+                        <span class="score-label" id="score-label-player">You (X)</span>
+                        <span class="score-value" id="score-player">0</span>
+                    </div>
+                    <div class="score-card opponent-card">
+                        <span class="score-label" id="score-label-computer">AI (O)</span>
+                        <span class="score-value" id="score-computer">0</span>
+                    </div>
+                    <div class="score-card draw-card">
+                        <span class="score-label">Draws</span>
+                        <span class="score-value" id="score-draws">0</span>
+                    </div>
+                </div>
+
+                <!-- Status Banner -->
+                <div class="status-banner" id="game-status-computer" aria-live="polite">
+                    Your turn! Select an empty cell.
+                </div>
+
+                <!-- 3x3 Board -->
+                <div class="board-container">
+                    <div class="board" id="board-computer" role="grid" aria-label="Tic-Tac-Toe Board">
+                        <button type="button" class="cell" data-position="1" data-index="0" aria-label="Position 1, empty"></button>
+                        <button type="button" class="cell" data-position="2" data-index="1" aria-label="Position 2, empty"></button>
+                        <button type="button" class="cell" data-position="3" data-index="2" aria-label="Position 3, empty"></button>
+                        <button type="button" class="cell" data-position="4" data-index="3" aria-label="Position 4, empty"></button>
+                        <button type="button" class="cell" data-position="5" data-index="4" aria-label="Position 5, empty"></button>
+                        <button type="button" class="cell" data-position="6" data-index="5" aria-label="Position 6, empty"></button>
+                        <button type="button" class="cell" data-position="7" data-index="6" aria-label="Position 7, empty"></button>
+                        <button type="button" class="cell" data-position="8" data-index="7" aria-label="Position 8, empty"></button>
+                        <button type="button" class="cell" data-position="9" data-index="8" aria-label="Position 9, empty"></button>
+                    </div>
+                </div>
+
+                <!-- Arena Controls -->
+                <div class="arena-actions">
+                    <button type="button" class="btn btn-primary" id="btn-restart-computer">
+                        ↻ New Round
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="btn-reset-scores">
+                        Reset Scores
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW: ONLINE MULTIPLAYER                   -->
+        <!-- ========================================== -->
+        <section id="view-multiplayer" class="view-section" aria-label="Online Multiplayer Arena">
+            <div class="arena-container">
+                <div class="arena-header">
+                    <h1 class="arena-title">Online Multiplayer</h1>
+                    <p class="arena-subtitle">Live STOMP Duplex Channel &bull; Authoritative Engine</p>
+                </div>
+
+                <!-- Matchmaking Lobby / Status -->
+                <div class="mp-matchmaking-lobby" id="mp-lobby">
+                    <div class="connection-badge badge-disconnected" id="mp-connection-badge">
+                        Offline
+                    </div>
+                    <div class="radar-spinner" id="mp-spinner"></div>
+                    <p id="mp-queue-message" style="font-size: 0.95rem; font-weight: 600; color: var(--text-secondary);">
+                        Ready to join matchmaking queue.
+                    </p>
+                    <div style="display: flex; gap: 0.75rem; width: 100%;">
+                        <button type="button" class="btn btn-accent-red" id="btn-mp-find" style="flex: 1;">
+                            ⚔️ Find Match
+                        </button>
+                        <button type="button" class="btn btn-secondary hidden" id="btn-mp-cancel" style="flex: 1;">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Match Info Strip (Hidden until match found) -->
+                <div class="match-info-strip hidden" id="mp-match-strip">
+                    <div>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">YOU</span>
+                        <strong id="mp-you-symbol" style="color: var(--accent-primary); font-size: 1.1rem;">-</strong>
+                    </div>
+                    <div class="match-vs">VS</div>
+                    <div>
+                        <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">OPPONENT</span>
+                        <strong id="mp-opp-name" style="color: var(--accent-secondary); font-size: 1.1rem;">-</strong>
+                    </div>
+                </div>
+
+                <!-- Status Banner -->
+                <div class="status-banner" id="game-status-multiplayer" aria-live="polite">
+                    Click 'Find Match' to queue for an opponent.
+                </div>
+
+                <!-- 3x3 Board -->
+                <div class="board-container">
+                    <div class="board" id="board-multiplayer" role="grid" aria-label="Multiplayer Tic-Tac-Toe Board">
+                        <button type="button" class="cell" data-position="1" data-index="0" aria-label="Position 1, empty" disabled></button>
+                        <button type="button" class="cell" data-position="2" data-index="1" aria-label="Position 2, empty" disabled></button>
+                        <button type="button" class="cell" data-position="3" data-index="2" aria-label="Position 3, empty" disabled></button>
+                        <button type="button" class="cell" data-position="4" data-index="3" aria-label="Position 4, empty" disabled></button>
+                        <button type="button" class="cell" data-position="5" data-index="4" aria-label="Position 5, empty" disabled></button>
+                        <button type="button" class="cell" data-position="6" data-index="5" aria-label="Position 6, empty" disabled></button>
+                        <button type="button" class="cell" data-position="7" data-index="6" aria-label="Position 7, empty" disabled></button>
+                        <button type="button" class="cell" data-position="8" data-index="7" aria-label="Position 8, empty" disabled></button>
+                        <button type="button" class="cell" data-position="9" data-index="8" aria-label="Position 9, empty" disabled></button>
+                    </div>
+                </div>
+
+                <!-- Arena Controls -->
+                <div class="arena-actions">
+                    <button type="button" class="btn btn-primary hidden" id="btn-mp-play-again">
+                        Play Again
+                    </button>
+                    <button type="button" class="btn btn-secondary" id="btn-mp-leave">
+                        Leave Arena
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW: LEADERBOARD                          -->
+        <!-- ========================================== -->
+        <section id="view-leaderboard" class="view-section" aria-label="Global Leaderboard">
+            <div class="section-header">
+                <h1 class="section-title">🏆 Global Rankings</h1>
+                <p class="section-desc">Persistent performance statistics ranked by total wins & win rate.</p>
+            </div>
+
+            <!-- Stats Highlight Bar -->
+            <div class="stats-highlight-bar">
+                <div class="stat-box">
+                    <span class="stat-box-title">Total Players</span>
+                    <span class="stat-box-value" id="stat-total-players">-</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box-title">Total Matches</span>
+                    <span class="stat-box-value" id="stat-total-matches">-</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-box-title">Total Wins</span>
+                    <span class="stat-box-value" id="stat-total-wins" style="color: var(--accent-green);">-</span>
+                </div>
+            </div>
+
+            <!-- Leaderboard Table -->
+            <div class="table-wrapper">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 70px;">Rank</th>
+                            <th>Player</th>
+                            <th style="text-align: right;">Games</th>
+                            <th style="text-align: right; color: var(--accent-green);">Wins</th>
+                            <th style="text-align: right; color: var(--accent-secondary);">Losses</th>
+                            <th style="text-align: right; color: var(--accent-amber);">Draws</th>
+                            <th style="text-align: right;">Win %</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leaderboard-table-body">
+                        <tr><td colspan="7" style="text-align: center; color: var(--text-muted); padding: 2rem;">Loading leaderboard data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="text-align: center; margin-top: 1.5rem;">
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-refresh-leaderboard">
+                    ↻ Refresh Rankings
+                </button>
+            </div>
+        </section>
+
+        <!-- ========================================== -->
+        <!-- VIEW: GAME HISTORY                         -->
+        <!-- ========================================== -->
+        <section id="view-history" class="view-section" aria-label="Personal Game History">
+            <div class="section-header">
+                <h1 class="section-title">📜 Match History</h1>
+                <p class="section-desc">Recent single-player and multiplayer matches associated with your profile.</p>
+            </div>
+
+            <div id="history-container">
+                <div class="history-feed" id="history-feed">
+                    <p style="text-align: center; color: var(--text-muted); padding: 3rem;">Please log in or play a game to view match records.</p>
+                </div>
+
+                <div class="pagination-controls hidden" id="history-pagination">
+                    <button type="button" class="btn btn-secondary btn-sm" id="btn-history-prev" disabled>Previous</button>
+                    <span id="history-page-info" style="font-size: 0.85rem; color: var(--text-secondary);">Page 1</span>
+                    <button type="button" class="btn btn-secondary btn-sm" id="btn-history-next" disabled>Next</button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- PROFILE & AUTH MODAL                       -->
+    <!-- ========================================== -->
+    <div class="modal-backdrop" id="profile-modal" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="modal-user-title">
+        <div class="modal-window">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-user-title">Player Profile</h2>
+                <button type="button" class="modal-close-btn" id="btn-modal-close" aria-label="Close Profile Modal">&times;</button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <label for="modal-username-input" style="font-size: 0.85rem; font-weight: 700; color: var(--text-secondary); text-transform: uppercase;">
+                    Display Username
+                </label>
+                <input type="text" id="modal-username-input" class="input-field" placeholder="Enter username (3-30 chars)" maxlength="30">
+                <div style="display: flex; gap: 0.5rem;">
+                    <button type="button" class="btn btn-primary" id="btn-modal-save" style="flex: 1;">Save / Switch</button>
+                    <button type="button" class="btn btn-secondary" id="btn-modal-guest">Play as Guest</button>
+                </div>
+                <p id="modal-status-msg" style="font-size: 0.85rem; min-height: 20px;"></p>
+            </div>
+
+            <div id="modal-profile-stats" class="hidden" style="border-top: 1px solid var(--border-subtle); padding-top: 1rem;">
+                <h3 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 0.75rem;">Profile Summary</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                    <div style="background: var(--bg-primary); padding: 0.75rem; border-radius: var(--radius-sm);">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">STATUS</span>
+                        <strong style="color: var(--accent-green);" id="modal-profile-status">Active</strong>
+                    </div>
+                    <div style="background: var(--bg-primary); padding: 0.75rem; border-radius: var(--radius-sm);">
+                        <span style="font-size: 0.75rem; color: var(--text-muted); display: block;">USER ID</span>
+                        <strong id="modal-profile-id">-</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- SITE FOOTER                                -->
+    <!-- ========================================== -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h3>TIC-TAC-TOE</h3>
+                <p>Enterprise-grade server-authoritative web game powered by Spring Boot, Minimax AI, and WebSocket STOMP messaging.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Navigation</h4>
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="#play">Play vs AI</a></li>
+                    <li><a href="#multiplayer">Online Multiplayer</a></li>
+                    <li><a href="#leaderboard">Rankings</a></li>
+                    <li><a href="#history">Match History</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Rules & Mechanics</h4>
+                <ul>
+                    <li>Grid: 3x3 cells (Positions 1..9)</li>
+                    <li>Objective: Three in a row</li>
+                    <li>Turns: Alternate strictly</li>
+                    <li>Validation: Server Authoritative</li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Tic-Tac-Toe MVP2 &bull; Java Spring Boot &bull; Vanilla Frontend &bull; Open Architecture</p>
+        </div>
+    </footer>
+
+    <!-- Scripts: External SockJS & STOMP with fallback handling -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+    <!-- Modular Frontend Application Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/socket.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>
