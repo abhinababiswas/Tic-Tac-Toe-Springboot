@@ -193,7 +193,7 @@ You have two convenient options:
 
 ## 8. How to Run Automated Tests
 
-To execute the full automated test suite (95 unit and integration tests):
+To execute the full automated test suite (122 unit and integration tests):
 
 ```bash
 cd backend
@@ -207,8 +207,17 @@ mvn clean test
 * `MediumStrategyTest` (5 tests): Tests winning move priority, player blocking priority, win over block prioritization, and empty cell fallbacks.
 * `HardStrategyTest` (13 tests): Tests unbeatable Minimax with alpha-beta pruning, immediate win, immediate block, fork prevention, blunder exploitation, deterministic tie-breaking, alpha-beta node reduction, 100-game Monte Carlo simulation, and all 9 opening responses.
 * `DomainModelTest` (4 tests): Tests `GameMode`, `PlayerSymbol`, `Difficulty`, and `GameStatus` enums and terminal state helpers.
-* `GameServiceTest` (10 tests): Validates turn progression, immediate player victory termination, draw detection on 9th move, illegal move rejections, and seamless processing of `Difficulty.HARD`.
+* `GameServiceTest` (10 tests): Validates turn progression, immediate player victory termination, draw detection on 9th move, illegal move rejections, and optional persistence delegation.
 * `GameControllerTest` (17 tests): Full-stack `MockMvc` testing covering endpoint routing, JSON aliasing (`move`/`position`), game outcome payloads, and successful 200 OK processing of `difficulty: "HARD"`.
+* `PlayerProfileRepositoryTest` (3 tests): Verifies profile persistence, unique username enforcement, and case-insensitive lookups.
+* `GameRecordRepositoryTest` (1 test): Verifies paginated user match history and proper game-participant relationships.
+* `GameParticipantRepositoryTest` (1 test): Verifies aggregate player statistics across wins, losses, draws, and zero-game players.
+* `PlayerProfileServiceTest` (5 tests): Validates username formatting rules, duplicate rejection, and profile retrieval.
+* `GameHistoryServiceTest` (6 tests): Validates authoritative match persistence, guest omission, terminal outcome mapping, and duration calculations.
+* `LeaderboardServiceTest` (2 tests): Validates leaderboard ranking sort order, win rate formulas, and safe zero-game handling.
+* `UserControllerTest` (6 tests): Tests `/api/users` endpoints for creation (201), conflict (409), validation (400), lookup (200/404), and history pagination.
+* `LeaderboardControllerTest` (1 test): Tests `/api/leaderboard` ranking retrieval.
+* `GamePersistenceIntegrationTest` (2 tests): End-to-end integration verifying guest zero-persistence and registered user persistence reflecting on history and leaderboards.
 * `TicTacToeApplicationTests` (1 test): Verifies Spring application context loading and static welcome page mapping.
 
 ---
@@ -227,10 +236,15 @@ The project is currently evolving toward **MVP2** in structured phases:
   - Depth-sensitive heuristic scoring (`+10 - depth`, `depth - 10`, `0`).
   - Board state immutability via `Board.withMove(...)`.
   - Comprehensive documentation in [docs/MVP2_PHASE2.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE2.md).
-- [ ] **Phase 3: Persistent Leaderboards & History** (Next Phase)
-  - Spring Data JPA, PostgreSQL/relational storage, User profiles, immutable game records, and rank queries.
-- [ ] **Phase 4: Online Real-Time Multiplayer**
+- [x] **Phase 3: Database, User Profiles, Persistent History & Leaderboards** (Completed)
+  - Spring Data JPA, PostgreSQL production setup, and embedded H2 development/testing mode.
+  - Minimal user profiles (`PlayerProfile`) with unique username constraints.
+  - Server-authoritative game persistence (`GameRecord`, `GameParticipant`) for completed matches.
+  - Dynamic leaderboard calculations directly from persistent match records with safe win-rate handling.
+  - Comprehensive documentation in [docs/MVP2_PHASE3.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE3.md).
+- [ ] **Phase 4: Online Real-Time Multiplayer** (Next Phase)
   - Spring WebSocket with STOMP protocol, matchmaking queue, game rooms, and player disconnect handling.
 - [ ] **Phase 5: Modern Responsive Web UI**
   - Professional redesign with navigation bar, game areas, leaderboards, match history, and profile screens.
+
 

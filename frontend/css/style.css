@@ -335,6 +335,172 @@ body {
     padding-top: 0.85rem;
 }
 
+/* Profile Bar */
+.profile-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 0.5rem 0.85rem;
+    font-size: 0.85rem;
+}
+
+.profile-actions {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.btn-sm {
+    padding: 0.3rem 0.65rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--card-border);
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.btn-sm:hover {
+    background-color: var(--card-border);
+    color: var(--accent-color);
+}
+
+.btn-secondary {
+    background-color: #334155;
+    color: #e2e8f0;
+}
+
+/* Stats & Identity Panel */
+.stats-panel {
+    background-color: #1e293b;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.stats-panel.hidden {
+    display: none;
+}
+
+.panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--card-border);
+    padding-bottom: 0.5rem;
+}
+
+.panel-header h2 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    color: var(--text-primary);
+}
+
+.panel-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.panel-section h3 {
+    font-size: 0.85rem;
+    color: var(--accent-color);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.input-row {
+    display: flex;
+    gap: 0.4rem;
+}
+
+.input-row input {
+    flex: 1;
+    background-color: #0f172a;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    color: var(--text-primary);
+    padding: 0.4rem 0.6rem;
+    font-size: 0.85rem;
+}
+
+.input-row input:focus {
+    outline: 2px solid var(--accent-color);
+}
+
+.panel-status-msg {
+    font-size: 0.75rem;
+    min-height: 1rem;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.75rem;
+    text-align: left;
+}
+
+.data-table th, .data-table td {
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+}
+
+.data-table th {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.text-muted {
+    color: var(--text-secondary);
+    text-align: center;
+    font-style: italic;
+}
+
+.history-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-size: 0.75rem;
+}
+
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.35rem 0.5rem;
+    background-color: #0f172a;
+    border-radius: var(--radius-sm);
+}
+
+.outcome-win { color: var(--success-color); font-weight: bold; }
+.outcome-loss { color: var(--computer-color); font-weight: bold; }
+.outcome-draw { color: var(--draw-color); font-weight: bold; }
+
 /* Mobile responsive constraints */
 @media (max-width: 400px) {
     .app-container {
@@ -351,3 +517,4 @@ body {
         font-size: 2rem;
     }
 }
+

@@ -22,11 +22,17 @@ public class GameService {
 
     private final GameEngine gameEngine;
     private final ComputerPlayer computerPlayer;
+    private final GameHistoryService gameHistoryService;
+
+    public GameService(GameEngine gameEngine, ComputerPlayer computerPlayer) {
+        this(gameEngine, computerPlayer, null);
+    }
 
     @Autowired
-    public GameService(GameEngine gameEngine, ComputerPlayer computerPlayer) {
+    public GameService(GameEngine gameEngine, ComputerPlayer computerPlayer, @Autowired(required = false) GameHistoryService gameHistoryService) {
         this.gameEngine = gameEngine;
         this.computerPlayer = computerPlayer;
+        this.gameHistoryService = gameHistoryService;
     }
 
     /**
@@ -62,23 +68,27 @@ public class GameService {
         int playerIndex = Board.positionToIndex(request.getPosition());
         board = board.withMove(playerIndex, Board.PLAYER_SYMBOL);
 
+        Difficulty difficulty = request.getDifficulty() != null ? request.getDifficulty() : Difficulty.MEDIUM;
+
         // 5. Evaluate result after player move
         if (gameEngine.checkWinner(board, Board.PLAYER_SYMBOL)) {
+            recordGameIfTerminal(request, difficulty, GameStatus.PLAYER_WON);
             return new GameResponse(board.getCells(), GameStatus.PLAYER_WON, "Player wins!", null, null);
         }
 
         if (board.isFull()) {
+            recordGameIfTerminal(request, difficulty, GameStatus.DRAW);
             return new GameResponse(board.getCells(), GameStatus.DRAW, "Game ended in a draw.", null, null);
         }
 
         // 6. Compute and apply computer move
-        Difficulty difficulty = request.getDifficulty() != null ? request.getDifficulty() : Difficulty.MEDIUM;
         int computerIndex = computerPlayer.chooseMove(board, difficulty);
         int computerPosition = Board.indexToPosition(computerIndex);
         board = board.withMove(computerIndex, Board.COMPUTER_SYMBOL);
 
         // 7. Evaluate result after computer move
         if (gameEngine.checkWinner(board, Board.COMPUTER_SYMBOL)) {
+            recordGameIfTerminal(request, difficulty, GameStatus.COMPUTER_WON);
             return new GameResponse(
                 board.getCells(),
                 GameStatus.COMPUTER_WON,
@@ -89,6 +99,7 @@ public class GameService {
         }
 
         if (board.isFull()) {
+            recordGameIfTerminal(request, difficulty, GameStatus.DRAW);
             return new GameResponse(
                 board.getCells(),
                 GameStatus.DRAW,
@@ -105,5 +116,18 @@ public class GameService {
             "PLAYER",
             computerPosition
         );
+    }
+
+    private void recordGameIfTerminal(MoveRequest request, Difficulty difficulty, GameStatus status) {
+        if (gameHistoryService != null && request.getUserId() != null && status != null && status.isTerminal()) {
+            java.time.Instant startedAt = request.getStartedAt() != null ? request.getStartedAt() : java.time.Instant.now();
+            gameHistoryService.recordCompletedComputerGame(
+                request.getUserId(),
+                difficulty,
+                status,
+                startedAt,
+                java.time.Instant.now()
+            );
+        }
     }
 }

@@ -313,3 +313,23 @@ Phase 2 implements the unbeatable `HardStrategy` using the Minimax algorithm:
 - **State Immutability**: Uses pure `Board.withMove(...)` functional transformations to prevent board corruption.
 - **Documentation**: Comprehensive analysis and metrics available in [docs/MVP2_PHASE2.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE2.md).
 
+---
+
+## 14. Persistence & Player Statistics (Phase 3: JPA, History & Leaderboards)
+
+Phase 3 introduces relational database persistence using Spring Data JPA while keeping the core game engine pure and decoupled:
+
+### 14.1 Database Architecture
+- **Production Database**: PostgreSQL (`postgresql` driver).
+- **Development & Test Database**: Embedded H2 (`MODE=PostgreSQL`).
+- **Entity Model**:
+  - `PlayerProfile`: Represents registered human users (`id`, `username`, `createdAt`, `updatedAt`). Unique username constraints enforced at both JPA and database levels.
+  - `GameRecord`: Stores server-authoritative completed matches (`gameMode`, `difficulty`, `status`, `result`, `startedAt`, `completedAt`).
+  - `GameParticipant`: Links players to game records (`symbol`, `participantType`, `outcome`). Supports single-player (computer opponent represented with `player = null`) and future multiplayer without schema migration.
+- **Strict Decoupling**: Core `GameEngine`, `Board`, and AI strategies contain zero JPA annotations or database dependencies.
+- **Server Authority**: Persistence occurs exclusively through the service layer after the server determines a terminal game outcome.
+- **Guest vs. Registered Gameplay**: Anonymous guest play remains fully supported with zero database writes. Registered moves optionally specify `userId`, automatically persisting terminal games.
+- **Leaderboard Calculation**: Real-time aggregate queries calculating games played, wins, losses, draws, and win rates directly from completed game records.
+- **Detailed Documentation**: See [docs/MVP2_PHASE3.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE3.md).
+
+

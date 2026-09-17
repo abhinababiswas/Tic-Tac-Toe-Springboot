@@ -14,6 +14,60 @@
             <p class="subtitle">Player vs Computer</p>
         </header>
 
+        <section class="profile-bar" id="profile-bar" aria-label="Player Profile">
+            <span id="player-display">Playing as: <strong>Guest</strong></span>
+            <div class="profile-actions">
+                <button type="button" id="btn-toggle-auth" class="btn-sm">Log In</button>
+                <button type="button" id="btn-toggle-stats" class="btn-sm">Stats</button>
+            </div>
+        </section>
+
+        <!-- Minimal Identity & Stats Drawer -->
+        <div id="stats-panel" class="stats-panel hidden" aria-hidden="true">
+            <div class="panel-header">
+                <h2 id="panel-title">Player & Leaderboard</h2>
+                <button type="button" id="btn-close-panel" class="close-btn" aria-label="Close panel">&times;</button>
+            </div>
+            
+            <div id="auth-section" class="panel-section">
+                <label for="username-input" class="control-label">Enter Username:</label>
+                <div class="input-row">
+                    <input type="text" id="username-input" placeholder="e.g. Neo" maxlength="30">
+                    <button type="button" id="btn-submit-user" class="btn-sm btn-primary">Save</button>
+                    <button type="button" id="btn-guest-mode" class="btn-sm btn-secondary">Guest</button>
+                </div>
+                <p id="user-status-msg" class="panel-status-msg"></p>
+            </div>
+
+            <div class="panel-section">
+                <h3>Top Leaderboard</h3>
+                <div id="leaderboard-table-container" class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>User</th>
+                                <th>W</th>
+                                <th>L</th>
+                                <th>D</th>
+                                <th>Win %</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            <tr><td colspan="6" class="text-muted">Loading leaderboard...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="history-section" class="panel-section hidden">
+                <h3>My Recent Games</h3>
+                <div id="history-list" class="history-list">
+                    <p class="text-muted">No games recorded yet.</p>
+                </div>
+            </div>
+        </div>
+
         <section class="controls-panel" aria-label="Game Controls">
             <div class="difficulty-container">
                 <span class="control-label" id="difficulty-label">Difficulty:</span>

@@ -18,6 +18,11 @@ public class MoveRequest {
 
     private Difficulty difficulty;
 
+    @JsonAlias({"playerId"})
+    private Long userId;
+
+    private java.time.Instant startedAt;
+
     public MoveRequest() {
     }
 
@@ -25,6 +30,14 @@ public class MoveRequest {
         this.board = board;
         this.position = position;
         this.difficulty = difficulty;
+    }
+
+    public MoveRequest(List<String> board, Integer position, Difficulty difficulty, Long userId, java.time.Instant startedAt) {
+        this.board = board;
+        this.position = position;
+        this.difficulty = difficulty;
+        this.userId = userId;
+        this.startedAt = startedAt;
     }
 
     public List<String> getBoard() {
@@ -57,5 +70,21 @@ public class MoveRequest {
 
     public void setDifficulty(Difficulty difficulty) {
         this.difficulty = difficulty;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public java.time.Instant getStartedAt() {
+        return startedAt;
+    }
+
+    public void setStartedAt(java.time.Instant startedAt) {
+        this.startedAt = startedAt;
     }
 }
