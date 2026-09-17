@@ -113,6 +113,80 @@ public class GameHistoryService {
     }
 
     /**
+     * Persists a server-authoritative record of a completed real-time multiplayer match.
+     */
+    @Transactional
+    public GameRecord recordCompletedMultiplayerGame(Long playerXId, Long playerOId, GameStatus terminalStatus,
+                                                     Instant startedAt, Instant completedAt) {
+        if (terminalStatus == null || !terminalStatus.isTerminal()) {
+            throw new IllegalArgumentException("Cannot record incomplete game with status: " + terminalStatus);
+        }
+
+        PlayerProfile playerX = (playerXId != null)
+            ? playerProfileRepository.findById(playerXId).orElse(null)
+            : null;
+        PlayerProfile playerO = (playerOId != null)
+            ? playerProfileRepository.findById(playerOId).orElse(null)
+            : null;
+
+        Instant start = (startedAt != null) ? startedAt : Instant.now();
+        Instant end = (completedAt != null) ? completedAt : Instant.now();
+
+        GameResult gameResult;
+        ParticipantOutcome xOutcome;
+        ParticipantOutcome oOutcome;
+
+        switch (terminalStatus) {
+            case PLAYER_ONE_WON -> {
+                gameResult = GameResult.PLAYER_ONE_WIN;
+                xOutcome = ParticipantOutcome.WIN;
+                oOutcome = ParticipantOutcome.LOSS;
+            }
+            case PLAYER_TWO_WON -> {
+                gameResult = GameResult.PLAYER_TWO_WIN;
+                xOutcome = ParticipantOutcome.LOSS;
+                oOutcome = ParticipantOutcome.WIN;
+            }
+            case DRAW -> {
+                gameResult = GameResult.DRAW;
+                xOutcome = ParticipantOutcome.DRAW;
+                oOutcome = ParticipantOutcome.DRAW;
+            }
+            default -> throw new IllegalArgumentException("Unsupported multiplayer terminal status: " + terminalStatus);
+        }
+
+        GameRecord gameRecord = new GameRecord(
+            GameMode.MULTIPLAYER,
+            null, // No AI difficulty for PvP multiplayer
+            terminalStatus,
+            gameResult,
+            start,
+            end
+        );
+
+        GameParticipant participantX = new GameParticipant(
+            gameRecord,
+            playerX,
+            PlayerSymbol.X,
+            ParticipantType.HUMAN,
+            xOutcome
+        );
+
+        GameParticipant participantO = new GameParticipant(
+            gameRecord,
+            playerO,
+            PlayerSymbol.O,
+            ParticipantType.HUMAN,
+            oOutcome
+        );
+
+        gameRecord.addParticipant(participantX);
+        gameRecord.addParticipant(participantO);
+
+        return gameRecordRepository.save(gameRecord);
+    }
+
+    /**
      * Retrieves paginated game history for a specific registered user.
      */
     @Transactional(readOnly = true)

@@ -218,7 +218,15 @@ mvn clean test
 * `UserControllerTest` (6 tests): Tests `/api/users` endpoints for creation (201), conflict (409), validation (400), lookup (200/404), and history pagination.
 * `LeaderboardControllerTest` (1 test): Tests `/api/leaderboard` ranking retrieval.
 * `GamePersistenceIntegrationTest` (2 tests): End-to-end integration verifying guest zero-persistence and registered user persistence reflecting on history and leaderboards.
+* `MatchmakingServiceTest` (7 tests): Tests FIFO queue order, duplicate join rejections, player leave, disconnect purges, and pairing.
+* `MultiplayerGameSessionTest` (7 tests): Tests player symbol assignment, turn alternation, out-of-turn rejection, occupied cell rejection, win and draw detection, and abandonment.
+* `MultiplayerConcurrencyTest` (3 tests): Verifies thread-safe concurrency control on identical and different position moves, ensuring only one move is accepted per turn.
+* `MultiplayerServiceTest` (4 tests): Tests multiplayer match creation, move processing, terminal persistence, and disconnect handling.
+* `MultiplayerPersistenceIntegrationTest` (2 tests): Verifies completed multiplayer matches appear in player history and accurately update leaderboard wins, losses, and draws.
+* `MultiplayerWebSocketIntegrationTest` (1 test): Full Spring Boot integration test over native STOMP WebSocket client executing connection, matchmaking, pairing, and real-time moves.
 * `TicTacToeApplicationTests` (1 test): Verifies Spring application context loading and static welcome page mapping.
+
+Total automated test suite: **147 tests, 0 failures, 0 errors**.
 
 ---
 
@@ -242,9 +250,14 @@ The project is currently evolving toward **MVP2** in structured phases:
   - Server-authoritative game persistence (`GameRecord`, `GameParticipant`) for completed matches.
   - Dynamic leaderboard calculations directly from persistent match records with safe win-rate handling.
   - Comprehensive documentation in [docs/MVP2_PHASE3.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE3.md).
-- [ ] **Phase 4: Online Real-Time Multiplayer** (Next Phase)
-  - Spring WebSocket with STOMP protocol, matchmaking queue, game rooms, and player disconnect handling.
-- [ ] **Phase 5: Modern Responsive Web UI**
+- [x] **Phase 4: Online Real-Time Multiplayer** (Completed)
+  - Spring WebSocket with STOMP protocol, matchmaking queue, game sessions, and player disconnect handling.
+  - Server-authoritative turn progression, move validation, win/draw detection via `GameEngine`.
+  - Concurrency control preventing race conditions on simultaneous moves.
+  - Completed multiplayer games persisted and reflected on user history and leaderboards.
+  - Comprehensive documentation in [docs/MVP2_PHASE4.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE4.md).
+- [ ] **Phase 5: Modern Responsive Web UI** (Next Phase)
   - Professional redesign with navigation bar, game areas, leaderboards, match history, and profile screens.
+
 
 

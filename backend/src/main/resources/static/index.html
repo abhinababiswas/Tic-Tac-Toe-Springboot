@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe — Player vs Computer</title>
-    <meta name="description" content="A clean, responsive Tic-Tac-Toe web game powered by a stateless Spring Boot backend.">
+    <title>Tic-Tac-Toe — Player vs Computer & Online Multiplayer</title>
+    <meta name="description" content="A clean, responsive Tic-Tac-Toe web game powered by a stateless Spring Boot backend with real-time STOMP multiplayer.">
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="app-container">
         <header class="game-header">
             <h1>Tic-Tac-Toe</h1>
-            <p class="subtitle">Player vs Computer</p>
+            <p class="subtitle" id="game-subtitle">Player vs Computer</p>
         </header>
 
         <section class="profile-bar" id="profile-bar" aria-label="Player Profile">
@@ -68,8 +68,13 @@
             </div>
         </div>
 
+        <div class="mode-selector" role="radiogroup" aria-label="Game Mode">
+            <button type="button" class="mode-btn active" id="mode-computer" data-mode="COMPUTER">vs Computer</button>
+            <button type="button" class="mode-btn" id="mode-multiplayer" data-mode="MULTIPLAYER">Online Multiplayer</button>
+        </div>
+
         <section class="controls-panel" aria-label="Game Controls">
-            <div class="difficulty-container">
+            <div class="difficulty-container" id="difficulty-panel">
                 <span class="control-label" id="difficulty-label">Difficulty:</span>
                 <div class="segmented-control" role="radiogroup" aria-labelledby="difficulty-label">
                     <button type="button" 
@@ -99,13 +104,29 @@
                 </div>
             </div>
 
+            <!-- Multiplayer Controls Bar -->
+            <div id="multiplayer-panel" class="multiplayer-panel hidden">
+                <div class="mp-status-row">
+                    <span id="mp-connection-badge" class="badge badge-disconnected">Offline</span>
+                    <span id="mp-queue-status">Ready to match</span>
+                </div>
+                <div class="mp-actions-row">
+                    <button type="button" id="btn-find-match" class="btn btn-primary">Find Match</button>
+                    <button type="button" id="btn-cancel-match" class="btn btn-secondary hidden">Cancel</button>
+                </div>
+                <div id="mp-match-info" class="mp-match-info hidden">
+                    <span id="mp-player-symbol">You: <strong>-</strong></span>
+                    <span id="mp-opponent-name">Opponent: <strong>-</strong></span>
+                </div>
+            </div>
+
             <div class="scoreboard" aria-label="Current Session Scoreboard">
                 <div class="score-card player-card">
-                    <span class="score-label">Player (X)</span>
+                    <span class="score-label" id="score-label-player">Player (X)</span>
                     <span class="score-value" id="score-player">0</span>
                 </div>
                 <div class="score-card computer-card">
-                    <span class="score-label">Computer (O)</span>
+                    <span class="score-label" id="score-label-computer">Computer (O)</span>
                     <span class="score-value" id="score-computer">0</span>
                 </div>
                 <div class="score-card draw-card">
@@ -131,7 +152,7 @@
                     <button type="button" class="cell" data-position="5" data-index="4" aria-label="Position 5, empty"></button>
                     <button type="button" class="cell" data-position="6" data-index="5" aria-label="Position 6, empty"></button>
                     <button type="button" class="cell" data-position="7" data-index="6" aria-label="Position 7, empty"></button>
-                    <button type="button" class="cell" data-position="8" data-index="7" aria-label="Position 8, empty"></button>
+                    <button type="button" class="cell" data-position="8" data-index="8" aria-label="Position 8, empty"></button>
                     <button type="button" class="cell" data-position="9" data-index="8" aria-label="Position 9, empty"></button>
                 </div>
             </div>
@@ -148,6 +169,8 @@
         </footer>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

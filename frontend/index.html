@@ -68,8 +68,13 @@
             </div>
         </div>
 
+        <div class="mode-selector" role="radiogroup" aria-label="Game Mode">
+            <button type="button" class="mode-btn active" id="mode-computer" data-mode="COMPUTER">vs Computer</button>
+            <button type="button" class="mode-btn" id="mode-multiplayer" data-mode="MULTIPLAYER">Online Multiplayer</button>
+        </div>
+
         <section class="controls-panel" aria-label="Game Controls">
-            <div class="difficulty-container">
+            <div class="difficulty-container" id="difficulty-panel">
                 <span class="control-label" id="difficulty-label">Difficulty:</span>
                 <div class="segmented-control" role="radiogroup" aria-labelledby="difficulty-label">
                     <button type="button" 
@@ -99,13 +104,29 @@
                 </div>
             </div>
 
+            <!-- Multiplayer Controls Bar -->
+            <div id="multiplayer-panel" class="multiplayer-panel hidden">
+                <div class="mp-status-row">
+                    <span id="mp-connection-badge" class="badge badge-disconnected">Offline</span>
+                    <span id="mp-queue-status">Ready to match</span>
+                </div>
+                <div class="mp-actions-row">
+                    <button type="button" id="btn-find-match" class="btn btn-primary">Find Match</button>
+                    <button type="button" id="btn-cancel-match" class="btn btn-secondary hidden">Cancel</button>
+                </div>
+                <div id="mp-match-info" class="mp-match-info hidden">
+                    <span id="mp-player-symbol">You: <strong>-</strong></span>
+                    <span id="mp-opponent-name">Opponent: <strong>-</strong></span>
+                </div>
+            </div>
+
             <div class="scoreboard" aria-label="Current Session Scoreboard">
                 <div class="score-card player-card">
-                    <span class="score-label">Player (X)</span>
+                    <span class="score-label" id="score-label-player">Player (X)</span>
                     <span class="score-value" id="score-player">0</span>
                 </div>
                 <div class="score-card computer-card">
-                    <span class="score-label">Computer (O)</span>
+                    <span class="score-label" id="score-label-computer">Computer (O)</span>
                     <span class="score-value" id="score-computer">0</span>
                 </div>
                 <div class="score-card draw-card">
@@ -148,6 +169,8 @@
         </footer>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

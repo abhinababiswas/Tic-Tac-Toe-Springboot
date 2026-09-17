@@ -332,4 +332,32 @@ Phase 3 introduces relational database persistence using Spring Data JPA while k
 - **Leaderboard Calculation**: Real-time aggregate queries calculating games played, wins, losses, draws, and win rates directly from completed game records.
 - **Detailed Documentation**: See [docs/MVP2_PHASE3.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE3.md).
 
+---
+
+## 15. Real-Time Online Multiplayer Architecture (Phase 4: WebSocket + STOMP)
+
+Phase 4 adds real-time Player vs Player online multiplayer with server-authoritative matchmaking, session management, and move synchronization:
+
+### 15.1 Architectural Separation
+- **REST Computer Gameplay**: Unmodified REST API (`/api/game/move`) for Easy, Medium, and Hard (Minimax) play.
+- **WebSocket STOMP Multiplayer**: Event-driven real-time messaging layer (`/ws`, `/app`, `/topic`, `/user/queue`).
+
+### 15.2 WebSocket & STOMP Specifications
+- **Endpoints**: `/ws` with native WebSocket and SockJS fallback transports.
+- **Application Destination Prefix**: `/app`.
+- **User Destination Prefix**: `/user`.
+- **Simple Broker**: In-memory broker serving `/topic` and `/queue`.
+- **Destinations**:
+  - Client -> Server: `/app/matchmaking/join`, `/app/matchmaking/leave`, `/app/game/{gameId}/move`.
+  - Server -> Client: `/user/queue/match` (match pairing and symbol assignment), `/user/queue/errors` (structured error payloads), `/topic/game/{gameId}` (public match state broadcasts).
+
+### 15.3 Authoritative Session & Concurrency Control
+- **In-Memory FIFO Matchmaking**: `MatchmakingService` pairs waiting players in strict FIFO order, prevents duplicate queue joins, and cleans up disconnected sessions.
+- **Active Game Session**: `MultiplayerGameSession` maintains runtime state and serializes move processing via instance monitor locks (`synchronized applyMove(...)`), eliminating race conditions on simultaneous or double-move requests.
+- **GameEngine Reuse**: Moves are validated using `GameEngine.validateMove(...)` and applied via immutable `Board.withMove(...)` transformations.
+- **Persistence & Statistics**: Terminal multiplayer games (`PLAYER_ONE_WON`, `PLAYER_TWO_WON`, `DRAW`) are saved to `GameRecord` (`GameMode.MULTIPLAYER`) and `GameParticipant`, automatically updating player profiles, history, and leaderboard rankings (+1 win, +1 loss, +1 draw).
+- **Disconnect Handling**: If a player disconnects during an active game, the match is marked `ABANDONED` and the opponent is notified without unfair score distortion.
+- **Detailed Documentation**: See [docs/MVP2_PHASE4.md](file:///c:/Users/User/Desktop/homework/Tic%20Tac%20Toe/docs/MVP2_PHASE4.md).
+
+
 
